@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Nhân Sự Seentech</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .form-container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        button { width: 100%; background: #1a73e8; color: #fff; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background: #1557b0; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Yêu Cầu Nhân Sự</h2>
+    <form id="hrForm">
+        <div class="form-group">
+            <label>Họ và Tên</label>
+            <select id="fullName" required>
+                <option value="">-- Chọn tên của bạn --</option>
+                <option>Đào Trang</option><option>Trần Trang</option><option>Anh Dũng</option>
+                <option>Huy Đạt</option><option>Thảo Nguyên</option><option>Ngọc Vân</option>
+                <option>Thùy Chi</option><option>Anh Thư</option><option>Huyền Trang</option>
+                <option>Đức Duy</option><option>Roze Ngọc</option><option>Thúy Quỳnh</option>
+                <option>Thu Vân</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Loại yêu cầu</label>
+            <select id="requestType" required onchange="toggleTimeField()">
+                <option value="">-- Chọn loại yêu cầu --</option>
+                <option value="Xin nghỉ phép">Xin nghỉ phép</option>
+                <option value="Xin đi muộn">Xin đi muộn</option>
+                <option value="Xin về sớm">Xin về sớm</option>
+                <option value="Làm Online">Làm Online (Remote)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Ngày áp dụng</label>
+            <input type="date" id="date" required>
+        </div>
+
+        <div class="form-group" id="timeField">
+            <label>Giờ cụ thể (Nếu đi muộn/về sớm)</label>
+            <input type="time" id="time">
+        </div>
+
+        <div class="form-group">
+            <label>Lý do chi tiết</label>
+            <textarea id="reason" rows="3" placeholder="Nhập lý do tại đây..." required></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn">Gửi Yêu Cầu</button>
+    </form>
+</div>
+
+<script>
+    function toggleTimeField() {
+        const type = document.getElementById('requestType').value;
+        const timeInput = document.getElementById('time');
+        if (type === "Xin đi muộn" || type === "Xin về sớm") {
+            timeInput.required = true;
+        } else {
+            timeInput.required = false;
+        }
+    }
+
+    document.getElementById('hrForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // --- DÁN LINK WEB APP CỦA BẠN VÀO DƯỚI ĐÂY ---
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz1OzUqCgxm-VUFWiNY4dW4w6-2VujSvE7USk4c4IquX73LnqsWfZLMnZ7o0li4ijutyQ/exec';
+        
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = 'Đang gửi...';
+
+        const data = {
+            fullName: document.getElementById('fullName').value,
+            requestType: document.getElementById('requestType').value,
+            date: document.getElementById('date').value,
+            time: document.getElementById('time').value || "Không có",
+            reason: document.getElementById('reason').value
+        };
+
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
+        .then(res => {
+            alert('✅ Đã gửi yêu cầu thành công!');
+            document.getElementById('hrForm').reset();
+        })
+        .catch(err => alert('❌ Lỗi kết nối. Hãy kiểm tra lại link Script hoặc quyền Anyone.'))
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerText = 'Gửi Yêu Cầu';
+        });
+    });
+</script>
+
+</body>
+</html>
