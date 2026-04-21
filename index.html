@@ -10,10 +10,15 @@
         h2 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         button { width: 100%; background: #1a73e8; color: #fff; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { background: #1557b0; }
         button:disabled { background: #ccc; cursor: not-allowed; }
+        
+        /* Ẩn các trường linh hoạt mặc định */
+        .dynamic-field { display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px; }
+        .dynamic-field.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -35,12 +40,12 @@
 
         <div class="form-group">
             <label>Loại yêu cầu</label>
-            <select id="requestType" required onchange="toggleTimeField()">
+            <select id="requestType" required onchange="toggleFields()">
                 <option value="">-- Chọn loại yêu cầu --</option>
                 <option value="Xin nghỉ phép">Xin nghỉ phép</option>
                 <option value="Xin đi muộn">Xin đi muộn</option>
                 <option value="Xin về sớm">Xin về sớm</option>
-                <option value="Làm Online">Làm Online (Remote)</option>
+                <option value="Xin làm online">Xin làm online (Remote)</option>
             </select>
         </div>
 
@@ -49,14 +54,37 @@
             <input type="date" id="date" required>
         </div>
 
-        <div class="form-group" id="timeField">
-            <label>Giờ cụ thể (Nếu đi muộn/về sớm)</label>
-            <input type="time" id="time">
+        <div id="sessionGroup" class="dynamic-field">
+            <div class="form-group">
+                <label>Thời gian áp dụng</label>
+                <select id="sessionOption">
+                    <option value="Cả ngày">Cả ngày</option>
+                    <option value="Sáng">Sáng</option>
+                    <option value="Chiều">Chiều</option>
+                </select>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Lý do chi tiết</label>
-            <textarea id="reason" rows="3" placeholder="Nhập lý do tại đây..." required></textarea>
+        <div id="lateGroup" class="dynamic-field">
+            <div class="form-group">
+                <label>Thời gian đến công ty</label>
+                <input type="time" id="arrivalTime">
+            </div>
+            <div class="form-group">
+                <label>Thời gian đăng ký làm bù</label>
+                <input type="time" id="lateMakeupTime">
+            </div>
+        </div>
+
+        <div id="earlyGroup" class="dynamic-field">
+            <div class="form-group">
+                <label>Thời gian xin về</label>
+                <input type="time" id="leaveTime">
+            </div>
+            <div class="form-group">
+                <label>Thời gian đăng ký làm bù</label>
+                <input type="time" id="earlyMakeupTime">
+            </div>
         </div>
 
         <button type="submit" id="submitBtn">Gửi Yêu Cầu</button>
@@ -64,40 +92,63 @@
 </div>
 
 <script>
-    function toggleTimeField() {
+    // Hàm xử lý hiện/ẩn các ô nhập liệu
+    function toggleFields() {
         const type = document.getElementById('requestType').value;
-        const timeInput = document.getElementById('time');
-        if (type === "Xin đi muộn" || type === "Xin về sớm") {
-            timeInput.required = true;
-        } else {
-            timeInput.required = false;
+        
+        document.getElementById('sessionGroup').classList.remove('active');
+        document.getElementById('lateGroup').classList.remove('active');
+        document.getElementById('earlyGroup').classList.remove('active');
+
+        if (type === "Xin nghỉ phép" || type === "Xin làm online") {
+            document.getElementById('sessionGroup').classList.add('active');
+        } else if (type === "Xin đi muộn") {
+            document.getElementById('lateGroup').classList.add('active');
+        } else if (type === "Xin về sớm") {
+            document.getElementById('earlyGroup').classList.add('active');
         }
     }
 
     document.getElementById('hrForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // --- DÁN LINK WEB APP CỦA BẠN VÀO DƯỚI ĐÂY ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz1OzUqCgxm-VUFWiNY4dW4w6-2VujSvE7USk4c4IquX73LnqsWfZLMnZ7o0li4ijutyQ/exec';
+        // --- QUAN TRỌNG: DÁN LINK WEB APP CỦA BẠN VÀO DƯỚI ĐÂY ---
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw9SwKDNQ39qtUjMyVCDfS57y6xeJs7PBlQpUqYcqo6aPC1CUPrgk56o-heqp-TvM0gOw/exec';
         
+        const type = document.getElementById('requestType').value;
+        let detailsText = "";
+
+        // Gộp dữ liệu tùy theo loại yêu cầu để gửi lên 1 cột Sheets cho gọn
+        if (type === "Xin nghỉ phép" || type === "Xin làm online") {
+            detailsText = "Buổi: " + document.getElementById('sessionOption').value;
+        } else if (type === "Xin đi muộn") {
+            const arrTime = document.getElementById('arrivalTime').value || "Chưa nhập";
+            const mkTime = document.getElementById('lateMakeupTime').value || "Chưa nhập";
+            detailsText = "Giờ đến: " + arrTime + " | Làm bù: " + mkTime;
+        } else if (type === "Xin về sớm") {
+            const lvTime = document.getElementById('leaveTime').value || "Chưa nhập";
+            const mkTime = document.getElementById('earlyMakeupTime').value || "Chưa nhập";
+            detailsText = "Giờ về: " + lvTime + " | Làm bù: " + mkTime;
+        }
+
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
         btn.innerText = 'Đang gửi...';
 
         const data = {
             fullName: document.getElementById('fullName').value,
-            requestType: document.getElementById('requestType').value,
+            requestType: type,
             date: document.getElementById('date').value,
-            time: document.getElementById('time').value || "Không có",
-            reason: document.getElementById('reason').value
+            details: detailsText
         };
 
         fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
         .then(res => {
             alert('✅ Đã gửi yêu cầu thành công!');
             document.getElementById('hrForm').reset();
+            toggleFields(); // Ẩn các ô đi sau khi reset
         })
-        .catch(err => alert('❌ Lỗi kết nối. Hãy kiểm tra lại link Script hoặc quyền Anyone.'))
+        .catch(err => alert('❌ Lỗi kết nối. Hãy kiểm tra lại link Script.'))
         .finally(() => {
             btn.disabled = false;
             btn.innerText = 'Gửi Yêu Cầu';
