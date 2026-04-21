@@ -50,8 +50,15 @@
         </div>
 
         <div class="form-group">
-            <label>Ngày áp dụng</label>
+            <label id="dateLabel">Ngày áp dụng</label>
             <input type="date" id="date" required>
+        </div>
+
+        <div id="endDateGroup" class="dynamic-field">
+            <div class="form-group">
+                <label>Đến ngày</label>
+                <input type="date" id="endDate">
+            </div>
         </div>
 
         <div id="sessionGroup" class="dynamic-field">
@@ -89,7 +96,7 @@
 
         <div class="form-group">
             <label>Ghi chú (Note)</label>
-            <textarea id="note" rows="3" placeholder="Nhập lý do hoặc chi tiết nghỉ nhiều ngày..."></textarea>
+            <textarea id="note" rows="3" placeholder="Nhập lý do hoặc chi tiết nghỉ..."></textarea>
         </div>
 
         <button type="submit" id="submitBtn">Gửi Yêu Cầu</button>
@@ -99,10 +106,16 @@
 <script>
     function toggleFields() {
         const type = document.getElementById('requestType').value;
+        const dateLabel = document.getElementById('dateLabel');
         
+        // Ẩn tất cả các trường phụ
         document.getElementById('sessionGroup').classList.remove('active');
         document.getElementById('lateGroup').classList.remove('active');
         document.getElementById('earlyGroup').classList.remove('active');
+        document.getElementById('endDateGroup').classList.remove('active');
+        
+        // Trả lại tên mặc định cho ô Ngày
+        dateLabel.innerText = "Ngày áp dụng";
 
         if (type === "Xin nghỉ phép (1 ngày)" || type === "Xin làm online") {
             document.getElementById('sessionGroup').classList.add('active');
@@ -110,6 +123,9 @@
             document.getElementById('lateGroup').classList.add('active');
         } else if (type === "Xin về sớm") {
             document.getElementById('earlyGroup').classList.add('active');
+        } else if (type === "Xin nghỉ phép (nhiều ngày)") {
+            document.getElementById('endDateGroup').classList.add('active');
+            dateLabel.innerText = "Từ ngày"; // Tự động đổi tên nhãn
         }
     }
 
@@ -117,15 +133,21 @@
         e.preventDefault();
         
         // --- QUAN TRỌNG: DÁN LINK WEB APP CỦA BẠN VÀO DƯỚI ĐÂY ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxC58bg591-6DobU_gCtFzNJbmAhUKny0Yfq-04vPAC_UVvJR0EK2iNwrQehbcRh_Y6jg/exec';
+        const scriptURL = 'DÁN_LINK_WEB_APP_CỦA_BẠN_VÀO_ĐÂY';
         
         const type = document.getElementById('requestType').value;
         let detailsText = "";
+        let finalDate = document.getElementById('date').value;
 
-        if (type === "Xin nghỉ phép (1 ngày)" || type === "Xin làm online") {
-            detailsText = "Buổi: " + document.getElementById('sessionOption').value;
-        } else if (type === "Xin nghỉ phép (nhiều ngày)") {
+        // Xử lý ghép ngày nếu là nghỉ nhiều ngày
+        if (type === "Xin nghỉ phép (nhiều ngày)") {
+            const endDateVal = document.getElementById('endDate').value;
+            if(endDateVal) {
+                finalDate = finalDate + " đến " + endDateVal;
+            }
             detailsText = "Nghỉ nhiều ngày";
+        } else if (type === "Xin nghỉ phép (1 ngày)" || type === "Xin làm online") {
+            detailsText = "Buổi: " + document.getElementById('sessionOption').value;
         } else if (type === "Xin đi muộn") {
             const arrTime = document.getElementById('arrivalTime').value || "Chưa nhập";
             const mkTime = document.getElementById('lateMakeupTime').value || "Chưa nhập";
@@ -143,7 +165,7 @@
         const data = {
             fullName: document.getElementById('fullName').value,
             requestType: type,
-            date: document.getElementById('date').value,
+            date: finalDate, // Sử dụng ngày đã được ghép
             details: detailsText,
             note: document.getElementById('note').value || "Không có"
         };
