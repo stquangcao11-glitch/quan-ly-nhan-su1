@@ -87,6 +87,11 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label>Ghi chú (Note)</label>
+            <textarea id="note" rows="3" placeholder="Nhập lý do hoặc ghi chú thêm (nếu có)..."></textarea>
+        </div>
+
         <button type="submit" id="submitBtn">Gửi Yêu Cầu</button>
     </form>
 </div>
@@ -112,7 +117,7 @@
         e.preventDefault();
         
         // --- QUAN TRỌNG: DÁN LINK WEB APP CỦA BẠN VÀO DƯỚI ĐÂY ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw9SwKDNQ39qtUjMyVCDfS57y6xeJs7PBlQpUqYcqo6aPC1CUPrgk56o-heqp-TvM0gOw/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzieWDP3F6uhTWUhCcY-SVmMd7h7EaB4McIWgIG9KsaGKF3uQ31tduS6gbbTW1CeavmNQ/exec';
         
         const type = document.getElementById('requestType').value;
         let detailsText = "";
@@ -137,7 +142,8 @@
             fullName: document.getElementById('fullName').value,
             requestType: type,
             date: document.getElementById('date').value,
-            details: detailsText
+            details: detailsText,
+            note: document.getElementById('note').value || "Không có ghi chú" // Lấy dữ liệu ghi chú
         };
 
         fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
