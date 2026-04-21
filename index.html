@@ -15,7 +15,6 @@
         button:hover { background: #1557b0; }
         button:disabled { background: #ccc; cursor: not-allowed; }
         
-        /* Ẩn các trường linh hoạt mặc định */
         .dynamic-field { display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px; }
         .dynamic-field.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
@@ -42,7 +41,8 @@
             <label>Loại yêu cầu</label>
             <select id="requestType" required onchange="toggleFields()">
                 <option value="">-- Chọn loại yêu cầu --</option>
-                <option value="Xin nghỉ phép">Xin nghỉ phép</option>
+                <option value="Xin nghỉ phép (1 ngày)">Xin nghỉ phép (1 ngày)</option>
+                <option value="Xin nghỉ phép (nhiều ngày)">Xin nghỉ phép (nhiều ngày)</option>
                 <option value="Xin đi muộn">Xin đi muộn</option>
                 <option value="Xin về sớm">Xin về sớm</option>
                 <option value="Xin làm online">Xin làm online (Remote)</option>
@@ -72,7 +72,7 @@
             </div>
             <div class="form-group">
                 <label>Thời gian đăng ký làm bù</label>
-                <input type="text" id="lateMakeupTime" placeholder="Ví dụ: Làm thêm 1 tiếng vào ngày mai...">
+                <input type="text" id="lateMakeupTime" placeholder="Ví dụ: Làm thêm 1 tiếng chiều mai...">
             </div>
         </div>
 
@@ -83,13 +83,13 @@
             </div>
             <div class="form-group">
                 <label>Thời gian đăng ký làm bù</label>
-                <input type="text" id="earlyMakeupTime" placeholder="Ví dụ: Làm bù vào sáng thứ 7 tuần này...">
+                <input type="text" id="earlyMakeupTime" placeholder="Ví dụ: Làm bù sáng thứ 7...">
             </div>
         </div>
 
         <div class="form-group">
             <label>Ghi chú (Note)</label>
-            <textarea id="note" rows="3" placeholder="Nhập lý do hoặc ghi chú thêm (nếu có)..."></textarea>
+            <textarea id="note" rows="3" placeholder="Nhập lý do hoặc chi tiết nghỉ nhiều ngày..."></textarea>
         </div>
 
         <button type="submit" id="submitBtn">Gửi Yêu Cầu</button>
@@ -104,7 +104,7 @@
         document.getElementById('lateGroup').classList.remove('active');
         document.getElementById('earlyGroup').classList.remove('active');
 
-        if (type === "Xin nghỉ phép" || type === "Xin làm online") {
+        if (type === "Xin nghỉ phép (1 ngày)" || type === "Xin làm online") {
             document.getElementById('sessionGroup').classList.add('active');
         } else if (type === "Xin đi muộn") {
             document.getElementById('lateGroup').classList.add('active');
@@ -117,21 +117,23 @@
         e.preventDefault();
         
         // --- QUAN TRỌNG: DÁN LINK WEB APP CỦA BẠN VÀO DƯỚI ĐÂY ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz72lPQlBL8dEBVekNfjVfXVrRqqKUrTmmAnCACmRoojviISt6zwocTVfl__hkkVeiODw/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxC58bg591-6DobU_gCtFzNJbmAhUKny0Yfq-04vPAC_UVvJR0EK2iNwrQehbcRh_Y6jg/exec';
         
         const type = document.getElementById('requestType').value;
         let detailsText = "";
 
-        if (type === "Xin nghỉ phép" || type === "Xin làm online") {
+        if (type === "Xin nghỉ phép (1 ngày)" || type === "Xin làm online") {
             detailsText = "Buổi: " + document.getElementById('sessionOption').value;
+        } else if (type === "Xin nghỉ phép (nhiều ngày)") {
+            detailsText = "Nghỉ nhiều ngày";
         } else if (type === "Xin đi muộn") {
             const arrTime = document.getElementById('arrivalTime').value || "Chưa nhập";
-            const mkTime = document.getElementById('lateMakeupTime').value || "Không có";
-            detailsText = "Giờ đến: " + arrTime + " | Làm bù: " + mkTime;
+            const mkTime = document.getElementById('lateMakeupTime').value || "Chưa nhập";
+            detailsText = "Đến lúc: " + arrTime + " | Làm bù: " + mkTime;
         } else if (type === "Xin về sớm") {
             const lvTime = document.getElementById('leaveTime').value || "Chưa nhập";
-            const mkTime = document.getElementById('earlyMakeupTime').value || "Không có";
-            detailsText = "Giờ về: " + lvTime + " | Làm bù: " + mkTime;
+            const mkTime = document.getElementById('earlyMakeupTime').value || "Chưa nhập";
+            detailsText = "Về lúc: " + lvTime + " | Làm bù: " + mkTime;
         }
 
         const btn = document.getElementById('submitBtn');
@@ -143,7 +145,7 @@
             requestType: type,
             date: document.getElementById('date').value,
             details: detailsText,
-            note: document.getElementById('note').value || "Không có ghi chú" // Lấy dữ liệu ghi chú
+            note: document.getElementById('note').value || "Không có"
         };
 
         fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
