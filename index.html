@@ -6,10 +6,10 @@
     <title>Hệ Thống Nhân Sự Seentech</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .form-container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        .form-container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 480px; }
         h2 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; font-size: 14px; }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         button { width: 100%; background: #1a73e8; color: #fff; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { background: #1557b0; }
@@ -17,8 +17,8 @@
         .dynamic-field { display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px; }
         .dynamic-field.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-        .date-range { display: flex; gap: 10px; }
-        .date-range div { flex: 1; }
+        .row-flex { display: flex; gap: 10px; margin-bottom: 10px; }
+        .row-flex div { flex: 1; }
     </style>
 </head>
 <body>
@@ -54,50 +54,52 @@
             <input type="date" id="singleDate">
         </div>
 
-        <div id="rangeDateGroup" class="form-group dynamic-field">
-            <div class="date-range">
+        <div id="leaveDateGroup" class="dynamic-field">
+            <div class="row-flex">
                 <div>
                     <label>Từ ngày</label>
                     <input type="date" id="startDate">
                 </div>
                 <div>
+                    <label>Buổi bắt đầu</label>
+                    <select id="startSession">
+                        <option>Cả ngày</option><option>Sáng</option><option>Chiều</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row-flex">
+                <div>
                     <label>Đến ngày</label>
                     <input type="date" id="endDate">
+                </div>
+                <div>
+                    <label>Buổi kết thúc</label>
+                    <select id="endSession">
+                        <option>Cả ngày</option><option>Sáng</option><option>Chiều</option>
+                    </select>
                 </div>
             </div>
         </div>
 
-        <div id="sessionGroup" class="dynamic-field">
-            <div class="form-group">
-                <label>Thời gian áp dụng</label>
-                <select id="sessionOption">
-                    <option value="Cả ngày">Cả ngày</option>
-                    <option value="Sáng">Sáng</option>
-                    <option value="Chiều">Chiều</option>
-                </select>
-            </div>
+        <div id="onlineGroup" class="dynamic-field">
+            <label>Buổi làm online</label>
+            <select id="onlineSession">
+                <option>Cả ngày</option><option>Sáng</option><option>Chiều</option>
+            </select>
         </div>
 
         <div id="lateGroup" class="dynamic-field">
-            <div class="form-group">
-                <label>Thời gian đến công ty</label>
-                <input type="time" id="arrivalTime">
-            </div>
-            <div class="form-group">
-                <label>Thời gian đăng ký làm bù</label>
-                <input type="text" id="lateMakeupTime" placeholder="Ví dụ: Làm thêm 1 tiếng chiều nay...">
-            </div>
+            <label>Thời gian đến công ty</label>
+            <input type="time" id="arrivalTime" class="form-group">
+            <label>Thời gian đăng ký làm bù</label>
+            <input type="text" id="lateMakeup" placeholder="Ví dụ: Làm bù 1 tiếng chiều nay...">
         </div>
 
         <div id="earlyGroup" class="dynamic-field">
-            <div class="form-group">
-                <label>Thời gian xin về</label>
-                <input type="time" id="leaveTime">
-            </div>
-            <div class="form-group">
-                <label>Thời gian đăng ký làm bù</label>
-                <input type="text" id="earlyMakeupTime" placeholder="Ví dụ: Làm bù vào thứ 7...">
-            </div>
+            <label>Thời gian xin về</label>
+            <input type="time" id="leaveTime" class="form-group">
+            <label>Thời gian đăng ký làm bù</label>
+            <input type="text" id="earlyMakeup" placeholder="Ví dụ: Làm bù sáng thứ 7...">
         </div>
 
         <div class="form-group">
@@ -112,16 +114,15 @@
 <script>
     function toggleFields() {
         const type = document.getElementById('requestType').value;
-        const groups = ['sessionGroup', 'lateGroup', 'earlyGroup', 'rangeDateGroup'];
-        groups.forEach(g => document.getElementById(g).classList.remove('active'));
+        const dynamics = ['leaveDateGroup', 'onlineGroup', 'lateGroup', 'earlyGroup'];
+        dynamics.forEach(id => document.getElementById(id).classList.remove('active'));
         document.getElementById('singleDateGroup').style.display = 'block';
 
         if (type === "Xin nghỉ phép") {
-            document.getElementById('rangeDateGroup').classList.add('active');
-            document.getElementById('sessionGroup').classList.add('active');
+            document.getElementById('leaveDateGroup').classList.add('active');
             document.getElementById('singleDateGroup').style.display = 'none';
         } else if (type === "Xin làm online") {
-            document.getElementById('sessionGroup').classList.add('active');
+            document.getElementById('onlineGroup').classList.add('active');
         } else if (type === "Xin đi muộn") {
             document.getElementById('lateGroup').classList.add('active');
         } else if (type === "Xin về sớm") {
@@ -131,40 +132,50 @@
 
     document.getElementById('hrForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const scriptURL = 'https://script.google.com/macros/s/AKfycby3Ph-eUXBVewHLcenFkWrQikuuyUfcnebaaKQefkKBcYCXIUvstahFiQ9e7Uj4xac06g/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz72lPQlBL8dEBVekNfjVfXVrRqqKUrTmmAnCACmRoojviISt6zwocTVfl__hkkVeiODw/exec';
         const type = document.getElementById('requestType').value;
-        let detailsText = "";
-        let start = document.getElementById('singleDate').value;
-        let end = document.getElementById('singleDate').value;
+        
+        let startD = document.getElementById('singleDate').value;
+        let endD = document.getElementById('singleDate').value;
+        let startS = "Cả ngày";
+        let endS = "Cả ngày";
+        let details = "";
 
         if (type === "Xin nghỉ phép") {
-            start = document.getElementById('startDate').value;
-            end = document.getElementById('endDate').value;
-            detailsText = "Buổi: " + document.getElementById('sessionOption').value;
+            startD = document.getElementById('startDate').value;
+            startS = document.getElementById('startSession').value;
+            endD = document.getElementById('endDate').value;
+            endS = document.getElementById('endSession').value;
+            details = "Nghỉ phép dài ngày";
         } else if (type === "Xin làm online") {
-            detailsText = "Buổi: " + document.getElementById('sessionOption').value;
+            startS = document.getElementById('onlineSession').value;
+            endS = startS;
+            details = "Làm việc từ xa";
         } else if (type === "Xin đi muộn") {
-            detailsText = "Đến lúc: " + document.getElementById('arrivalTime').value + " | Bù: " + document.getElementById('lateMakeupTime').value;
+            details = "Giờ đến: " + document.getElementById('arrivalTime').value + " | Bù: " + document.getElementById('lateMakeup').value;
         } else if (type === "Xin về sớm") {
-            detailsText = "Về lúc: " + document.getElementById('leaveTime').value + " | Bù: " + document.getElementById('earlyMakeupTime').value;
+            details = "Giờ về: " + document.getElementById('leaveTime').value + " | Bù: " + document.getElementById('earlyMakeup').value;
         }
 
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
         btn.innerText = 'Đang gửi...';
 
-        const data = {
-            fullName: document.getElementById('fullName').value,
-            requestType: type,
-            startDate: start,
-            endDate: end,
-            details: detailsText,
-            note: document.getElementById('note').value || "Không có"
-        };
-
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
+        fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({
+                fullName: document.getElementById('fullName').value,
+                requestType: type,
+                startDate: startD,
+                startSession: startS,
+                endDate: endD,
+                endSession: endS,
+                details: details,
+                note: document.getElementById('note').value || "Không có"
+            })
+        })
         .then(res => {
-            alert('✅ Đã gửi thành công!');
+            alert('✅ Gửi yêu cầu thành công!');
             document.getElementById('hrForm').reset();
             toggleFields();
         })
