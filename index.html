@@ -10,7 +10,7 @@
         h2 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         button { width: 100%; background: #1a73e8; color: #fff; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { background: #1557b0; }
         button:disabled { background: #ccc; cursor: not-allowed; }
@@ -72,7 +72,7 @@
             </div>
             <div class="form-group">
                 <label>Thời gian đăng ký làm bù</label>
-                <input type="time" id="lateMakeupTime">
+                <input type="text" id="lateMakeupTime" placeholder="Ví dụ: Làm thêm 1 tiếng vào ngày mai...">
             </div>
         </div>
 
@@ -83,7 +83,7 @@
             </div>
             <div class="form-group">
                 <label>Thời gian đăng ký làm bù</label>
-                <input type="time" id="earlyMakeupTime">
+                <input type="text" id="earlyMakeupTime" placeholder="Ví dụ: Làm bù vào sáng thứ 7 tuần này...">
             </div>
         </div>
 
@@ -92,7 +92,6 @@
 </div>
 
 <script>
-    // Hàm xử lý hiện/ẩn các ô nhập liệu
     function toggleFields() {
         const type = document.getElementById('requestType').value;
         
@@ -118,16 +117,15 @@
         const type = document.getElementById('requestType').value;
         let detailsText = "";
 
-        // Gộp dữ liệu tùy theo loại yêu cầu để gửi lên 1 cột Sheets cho gọn
         if (type === "Xin nghỉ phép" || type === "Xin làm online") {
             detailsText = "Buổi: " + document.getElementById('sessionOption').value;
         } else if (type === "Xin đi muộn") {
             const arrTime = document.getElementById('arrivalTime').value || "Chưa nhập";
-            const mkTime = document.getElementById('lateMakeupTime').value || "Chưa nhập";
+            const mkTime = document.getElementById('lateMakeupTime').value || "Không có";
             detailsText = "Giờ đến: " + arrTime + " | Làm bù: " + mkTime;
         } else if (type === "Xin về sớm") {
             const lvTime = document.getElementById('leaveTime').value || "Chưa nhập";
-            const mkTime = document.getElementById('earlyMakeupTime').value || "Chưa nhập";
+            const mkTime = document.getElementById('earlyMakeupTime').value || "Không có";
             detailsText = "Giờ về: " + lvTime + " | Làm bù: " + mkTime;
         }
 
@@ -146,7 +144,7 @@
         .then(res => {
             alert('✅ Đã gửi yêu cầu thành công!');
             document.getElementById('hrForm').reset();
-            toggleFields(); // Ẩn các ô đi sau khi reset
+            toggleFields(); 
         })
         .catch(err => alert('❌ Lỗi kết nối. Hãy kiểm tra lại link Script.'))
         .finally(() => {
