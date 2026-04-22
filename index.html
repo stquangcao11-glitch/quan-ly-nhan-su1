@@ -5,186 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Nhân Sự Seentech</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .form-container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
-        h2 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
-        button { width: 100%; background: #1a73e8; color: #fff; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .form-container { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-bottom: 20px; }
+        .logo { display: block; margin: 0 auto 10px; max-width: 120px; }
+        h2 { text-align: center; color: #1a73e8; margin-bottom: 15px; font-size: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px; font-size: 14px; box-sizing: border-box; }
+        button { width: 100%; background: #1a73e8; color: #fff; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; }
         button:hover { background: #1557b0; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
+        .dynamic-field { display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 12px; }
+        .dynamic-field.active { display: block; }
         
-        .dynamic-field { display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px; }
-        .dynamic-field.active { display: block; animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        /* CSS cho phần tra cứu */
+        .status-box { background: #e8f0fe; border-top: 4px solid #1a73e8; }
+        #statusResult { text-align: center; font-size: 18px; font-weight: bold; color: #1a73e8; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="form-container">
     <img src="logo.png" alt="Seentech Logo" class="logo">
-    
-    <h2>Yêu Cầu Nhân Sự</h2>
+    <h2>Gửi Yêu Cầu</h2>
     <form id="hrForm">
-        <div class="form-group">
-            <label>Họ và Tên</label>
-            <select id="fullName" required>
-                <option value="">-- Chọn tên của bạn --</option>
-                <option>Đào Trang</option><option>Trần Trang</option><option>Anh Dũng</option>
-                <option>Huy Đạt</option><option>Thảo Nguyên</option><option>Ngọc Vân</option>
-                <option>Thùy Chi</option><option>Anh Thư</option><option>Huyền Trang</option>
-                <option>Đức Duy</option><option>Roze Ngọc</option><option>Thúy Quỳnh</option>
-                <option>Thu Vân</option><option>Thanh Tâm</option>
-            </select>
-        </div>
+        <label>Họ và Tên</label>
+        <select id="fullName" required>
+            <option value="">-- Chọn tên --</option>
+            <option>Đào Trang</option><option>Trần Trang</option><option>Anh Dũng</option>
+            <option>Huy Đạt</option><option>Thảo Nguyên</option><option>Ngọc Vân</option>
+            <option>Thùy Chi</option><option>Anh Thư</option><option>Huyền Trang</option>
+            <option>Đức Duy</option><option>Roze Ngọc</option><option>Thúy Quỳnh</option>
+            <option>Thu Vân</option>
+        </select>
 
-        <div class="form-group">
-            <label>Loại yêu cầu</label>
-            <select id="requestType" required onchange="toggleFields()">
-                <option value="">-- Chọn loại yêu cầu --</option>
-                <option value="Xin nghỉ phép (1 ngày)">Xin nghỉ phép (1 ngày)</option>
-                <option value="Xin nghỉ phép (nhiều ngày)">Xin nghỉ phép (nhiều ngày)</option>
-                <option value="Xin đi muộn">Xin đi muộn</option>
-                <option value="Xin về sớm">Xin về sớm</option>
-                <option value="Xin làm online">Xin làm online (Remote)</option>
-            </select>
-        </div>
+        <label>Loại yêu cầu</label>
+        <select id="requestType" required onchange="toggleFields()">
+            <option value="">-- Chọn loại --</option>
+            <option value="Xin nghỉ phép (1 ngày)">Nghỉ phép (1 ngày)</option>
+            <option value="Xin nghỉ phép (nhiều ngày)">Nghỉ phép (nhiều ngày)</option>
+            <option value="Xin đi muộn">Đi muộn</option>
+            <option value="Xin về sớm">Về sớm</option>
+            <option value="Xin làm online">Làm online</option>
+        </select>
 
-        <div class="form-group">
-            <label id="dateLabel">Ngày áp dụng</label>
-            <input type="date" id="date" required>
-        </div>
+        <label id="dateLabel">Ngày áp dụng</label>
+        <input type="date" id="date" required>
 
         <div id="endDateGroup" class="dynamic-field">
-            <div class="form-group">
-                <label>Đến ngày</label>
-                <input type="date" id="endDate">
-            </div>
+            <label>Đến ngày</label>
+            <input type="date" id="endDate">
         </div>
 
         <div id="sessionGroup" class="dynamic-field">
-            <div class="form-group">
-                <label>Thời gian áp dụng</label>
-                <select id="sessionOption">
-                    <option value="Cả ngày">Cả ngày</option>
-                    <option value="Sáng">Sáng</option>
-                    <option value="Chiều">Chiều</option>
-                </select>
-            </div>
+            <label>Thời gian áp dụng</label>
+            <select id="sessionOption">
+                <option value="Cả ngày">Cả ngày</option><option value="Sáng">Sáng</option><option value="Chiều">Chiều</option>
+            </select>
         </div>
 
         <div id="lateGroup" class="dynamic-field">
-            <div class="form-group">
-                <label>Thời gian đến công ty</label>
-                <input type="time" id="arrivalTime">
-            </div>
-            <div class="form-group">
-                <label>Thời gian đăng ký làm bù</label>
-                <input type="text" id="lateMakeupTime" placeholder="Ví dụ: Làm thêm 1 tiếng chiều mai...">
-            </div>
+            <label>Giờ đến / Giờ về</label>
+            <input type="time" id="specificTime">
+            <label>Thời gian làm bù</label>
+            <input type="text" id="makeupTime" placeholder="Ví dụ: Làm bù sáng T7">
         </div>
 
-        <div id="earlyGroup" class="dynamic-field">
-            <div class="form-group">
-                <label>Thời gian xin về</label>
-                <input type="time" id="leaveTime">
-            </div>
-            <div class="form-group">
-                <label>Thời gian đăng ký làm bù</label>
-                <input type="text" id="earlyMakeupTime" placeholder="Ví dụ: Làm bù sáng thứ 7...">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Ghi chú (Note)</label>
-            <textarea id="note" rows="3" placeholder="Nhập lý do hoặc chi tiết nghỉ..."></textarea>
-        </div>
+        <label>Ghi chú (Note)</label>
+        <textarea id="note" rows="2" placeholder="Lý do chi tiết..."></textarea>
 
         <button type="submit" id="submitBtn">Gửi Yêu Cầu</button>
     </form>
 </div>
 
+<div class="form-container status-box">
+    <h2>Tra Cứu Kết Quả</h2>
+    <label>Chọn tên của bạn</label>
+    <select id="checkName">
+        <option value="">-- Chọn tên --</option>
+        <option>Đào Trang</option><option>Trần Trang</option><option>Anh Dũng</option>
+        <option>Huy Đạt</option><option>Thảo Nguyên</option><option>Ngọc Vân</option>
+        <option>Thùy Chi</option><option>Anh Thư</option><option>Huyền Trang</option>
+        <option>Đức Duy</option><option>Roze Ngọc</option><option>Thúy Quỳnh</option>
+        <option>Thu Vân</option><option>Thanh Tâm</option>
+    </select>
+    <button onclick="checkStatus()">Kiểm tra trạng thái</button>
+    <div id="statusResult">---</div>
+</div>
+
 <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzQhzffWizSsyZQN2nOZfRmhFbWYEvB6Hjl40vTswEkNkCxvUtlpE78p-q7LcI2WTPs/exec';
+
     function toggleFields() {
         const type = document.getElementById('requestType').value;
-        const dateLabel = document.getElementById('dateLabel');
-        
-        // Ẩn tất cả các trường phụ
+        const dl = document.getElementById('dateLabel');
         document.getElementById('sessionGroup').classList.remove('active');
         document.getElementById('lateGroup').classList.remove('active');
-        document.getElementById('earlyGroup').classList.remove('active');
         document.getElementById('endDateGroup').classList.remove('active');
-        
-        // Trả lại tên mặc định cho ô Ngày
-        dateLabel.innerText = "Ngày áp dụng";
+        dl.innerText = "Ngày áp dụng";
 
-        if (type === "Xin nghỉ phép (1 ngày)" || type === "Xin làm online") {
-            document.getElementById('sessionGroup').classList.add('active');
-        } else if (type === "Xin đi muộn") {
-            document.getElementById('lateGroup').classList.add('active');
-        } else if (type === "Xin về sớm") {
-            document.getElementById('earlyGroup').classList.add('active');
-        } else if (type === "Xin nghỉ phép (nhiều ngày)") {
+        if (type.includes("1 ngày") || type.includes("online")) document.getElementById('sessionGroup').classList.add('active');
+        else if (type.includes("muộn") || type.includes("sớm")) document.getElementById('lateGroup').classList.add('active');
+        else if (type.includes("nhiều ngày")) {
             document.getElementById('endDateGroup').classList.add('active');
-            dateLabel.innerText = "Từ ngày"; // Tự động đổi tên nhãn
+            dl.innerText = "Từ ngày";
         }
+    }
+
+    // HÀM TRA CỨU TRẠNG THÁI
+    function checkStatus() {
+        const name = document.getElementById('checkName').value;
+        if (!name) return alert("Vui lòng chọn tên!");
+        
+        const resultDiv = document.getElementById('statusResult');
+        resultDiv.innerText = "Đang kiểm tra...";
+
+        fetch(scriptURL + "?action=checkStatus&name=" + encodeURIComponent(name))
+        .then(res => res.text())
+        .then(data => { resultDiv.innerText = data; })
+        .catch(err => { resultDiv.innerText = "Lỗi kết nối!"; });
     }
 
     document.getElementById('hrForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // --- QUAN TRỌNG: DÁN LINK WEB APP CỦA BẠN VÀO DƯỚI ĐÂY ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzQhzffWizSsyZQN2nOZfRmhFbWYEvB6Hjl40vTswEkNkCxvUtlpE78p-q7LcI2WTPs/exec';
-        
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true; btn.innerText = 'Đang gửi...';
+
         const type = document.getElementById('requestType').value;
-        let detailsText = "";
+        let details = "";
         let finalDate = document.getElementById('date').value;
 
-        // Xử lý ghép ngày nếu là nghỉ nhiều ngày
-        if (type === "Xin nghỉ phép (nhiều ngày)") {
-            const endDateVal = document.getElementById('endDate').value;
-            if(endDateVal) {
-                finalDate = finalDate + " đến " + endDateVal;
-            }
-            detailsText = "Nghỉ nhiều ngày";
-        } else if (type === "Xin nghỉ phép (1 ngày)" || type === "Xin làm online") {
-            detailsText = "Buổi: " + document.getElementById('sessionOption').value;
-        } else if (type === "Xin đi muộn") {
-            const arrTime = document.getElementById('arrivalTime').value || "Chưa nhập";
-            const mkTime = document.getElementById('lateMakeupTime').value || "Chưa nhập";
-            detailsText = "Đến lúc: " + arrTime + " | Làm bù: " + mkTime;
-        } else if (type === "Xin về sớm") {
-            const lvTime = document.getElementById('leaveTime').value || "Chưa nhập";
-            const mkTime = document.getElementById('earlyMakeupTime').value || "Chưa nhập";
-            detailsText = "Về lúc: " + lvTime + " | Làm bù: " + mkTime;
-        }
-
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerText = 'Đang gửi...';
+        if (type.includes("nhiều ngày")) finalDate += " đến " + document.getElementById('endDate').value;
+        if (type.includes("1 ngày") || type.includes("online")) details = "Buổi: " + document.getElementById('sessionOption').value;
+        else if (type.includes("muộn") || type.includes("sớm")) details = "Giờ: " + document.getElementById('specificTime').value + " | Bù: " + document.getElementById('makeupTime').value;
 
         const data = {
             fullName: document.getElementById('fullName').value,
             requestType: type,
-            date: finalDate, // Sử dụng ngày đã được ghép
-            details: detailsText,
+            date: finalDate,
+            details: details,
             note: document.getElementById('note').value || "Không có"
         };
 
         fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
-        .then(res => {
-            alert('✅ Đã gửi yêu cầu thành công!');
-            document.getElementById('hrForm').reset();
-            toggleFields(); 
-        })
-        .catch(err => alert('❌ Lỗi kết nối. Hãy kiểm tra lại link Script.'))
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerText = 'Gửi Yêu Cầu';
-        });
+        .then(res => { alert('✅ Thành công!'); document.getElementById('hrForm').reset(); toggleFields(); })
+        .catch(err => alert('❌ Lỗi!'))
+        .finally(() => { btn.disabled = false; btn.innerText = 'Gửi Yêu Cầu'; });
     });
 </script>
-
 </body>
 </html>
